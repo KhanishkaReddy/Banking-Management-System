@@ -1,5 +1,4 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,18 +6,15 @@ import java.util.Scanner;
 
 public class FundTransfer {
 
-    private static final String URL =
-        "jdbc:mysql://localhost:3306/banking_management"
-        + "?useSSL=false&allowPublicKeyRetrieval=true";
-
-    private static final String USER = "bank_user";
-    private static final String PASSWORD = "bank@123";
-
     public static void transfer() {
 
         Scanner sc = new Scanner(System.in);
+        Connection conn = null;
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try {
+            conn = DBConnection.getConnection();
+
+            if (conn == null) return;
 
             System.out.print("From Account No: ");
             int fromAcc = sc.nextInt();
@@ -67,12 +63,13 @@ public class FundTransfer {
             psAdd.setInt(2, toAcc);
             psAdd.executeUpdate();
 
-            // 4️⃣ Insert transaction record (Debit)
+            // 4️⃣ Insert transaction record (Debit & Credit)
             String insertSQL =
                 "INSERT INTO transaction_details " +
                 "(transaction_id, amount, transaction_type, transaction_date, description, account_no) " +
                 "VALUES (?, ?, ?, NOW(), ?, ?)";
 
+            // Debit entry
             PreparedStatement psTrans1 = conn.prepareStatement(insertSQL);
             psTrans1.setInt(1, (int)(Math.random() * 100000));
             psTrans1.setDouble(2, amount);
@@ -81,7 +78,7 @@ public class FundTransfer {
             psTrans1.setInt(5, fromAcc);
             psTrans1.executeUpdate();
 
-            // 5️⃣ Insert transaction record (Credit)
+            // Credit entry
             PreparedStatement psTrans2 = conn.prepareStatement(insertSQL);
             psTrans2.setInt(1, (int)(Math.random() * 100000));
             psTrans2.setDouble(2, amount);
@@ -94,8 +91,27 @@ public class FundTransfer {
 
             System.out.println("✅ Fund Transfer Successful!");
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
+
+            try {
+                if (conn != null) {
+                    conn.rollback();   // Rollback on any failure
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
             e.printStackTrace();
+
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

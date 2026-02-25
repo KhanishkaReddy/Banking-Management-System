@@ -3,11 +3,6 @@ import java.util.Scanner;
 
 public class BankingApp {
 
-    private static final String URL =
-        "jdbc:mysql://localhost:3306/banking_management?useSSL=false&allowPublicKeyRetrieval=true";
-    private static final String USER = "bank_user";
-    private static final String PASSWORD = "bank@123";
-
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -28,7 +23,7 @@ public class BankingApp {
             System.out.print("Choose option: ");
 
             int choice = sc.nextInt();
-            sc.nextLine();   // 🔥 Clear buffer
+            sc.nextLine();   // Clear buffer
 
             switch (choice) {
                 case 1 -> addCustomer();
@@ -52,7 +47,9 @@ public class BankingApp {
 
     // 1. Add Customer
     static void addCustomer() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DBConnection.getConnection()) {
+
+            if (conn == null) return;
 
             System.out.print("Name: ");
             String name = sc.nextLine();
@@ -102,7 +99,9 @@ public class BankingApp {
 
     // 2. Open Savings Account
     static void openSavingsAccount() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DBConnection.getConnection()) {
+
+            if (conn == null) return;
 
             System.out.print("Account No: ");
             int accNo = sc.nextInt();
@@ -138,7 +137,9 @@ public class BankingApp {
 
     // 3. Deposit Money
     static void depositMoney() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DBConnection.getConnection()) {
+
+            if (conn == null) return;
 
             System.out.print("Account No: ");
             int accNo = sc.nextInt();
@@ -146,7 +147,6 @@ public class BankingApp {
             System.out.print("Deposit Amount: ");
             double amt = sc.nextDouble();
 
-            // Check account existence
             String check = "SELECT balance FROM account WHERE account_no = ?";
             PreparedStatement psCheck = conn.prepareStatement(check);
             psCheck.setInt(1, accNo);
@@ -157,7 +157,6 @@ public class BankingApp {
                 return;
             }
 
-            // Update balance
             String update =
                 "UPDATE account SET balance = balance + ? WHERE account_no = ?";
             PreparedStatement ps1 = conn.prepareStatement(update);
@@ -165,7 +164,6 @@ public class BankingApp {
             ps1.setInt(2, accNo);
             ps1.executeUpdate();
 
-            // Insert transaction record
             String insert =
                 "INSERT INTO transaction_details " +
                 "(transaction_id, amount, transaction_type, transaction_date, description, account_no) " +
@@ -186,7 +184,9 @@ public class BankingApp {
 
     // 4. View Customer Accounts
     static void viewAccounts() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DBConnection.getConnection()) {
+
+            if (conn == null) return;
 
             String sql =
                 "SELECT c.customer_id, c.name, a.account_no, a.account_type, a.balance " +
@@ -200,11 +200,11 @@ public class BankingApp {
 
             while (rs.next()) {
                 System.out.println(
-                rs.getInt("customer_id") + " | " +
-                rs.getString("name") + " | " +
-                rs.getInt("account_no") + " | " +
-                rs.getString("account_type") + " | ₹" +
-                rs.getDouble("balance")
+                    rs.getInt("customer_id") + " | " +
+                    rs.getString("name") + " | " +
+                    rs.getInt("account_no") + " | " +
+                    rs.getString("account_type") + " | ₹" +
+                    rs.getDouble("balance")
                 );
             }
 

@@ -1,6 +1,5 @@
 🔹 1️⃣ MYSQL SERVER COMMANDS
 ▶ Start MySQL Server
-sudo /usr/local/mysql/support-files/mysql.server start
 
 ⏹ Stop MySQL Server
 sudo /usr/local/mysql/support-files/mysql.server stop

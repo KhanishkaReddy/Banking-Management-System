@@ -1,17 +1,9 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ViewCustomerAccount {
-
-    private static final String URL =
-        "jdbc:mysql://localhost:3306/banking_management"
-        + "?useSSL=false&allowPublicKeyRetrieval=true";
-
-    private static final String USER = "bank_user";
-    private static final String PASSWORD = "bank@123";
 
     public static void main(String[] args) {
 
@@ -21,9 +13,11 @@ public class ViewCustomerAccount {
             "FROM customer c " +
             "JOIN account a ON c.customer_id = a.customer_id";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
+            if (conn == null) return;
 
             System.out.println("📋 Customer Account Details");
             System.out.println("--------------------------------------");

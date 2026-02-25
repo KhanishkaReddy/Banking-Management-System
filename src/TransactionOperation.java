@@ -1,17 +1,9 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class TransactionOperation {
-
-    private static final String URL =
-        "jdbc:mysql://localhost:3306/banking_management"
-        + "?useSSL=false&allowPublicKeyRetrieval=true";
-
-    private static final String USER = "bank_user";
-    private static final String PASSWORD = "bank@123";
 
     public static void main(String[] args) {
 
@@ -27,17 +19,23 @@ public class TransactionOperation {
             "(transaction_id, amount, transaction_type, transaction_date, description, account_no) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        Connection conn = null;
 
-            // 1. Update account balance
+        try {
+            conn = DBConnection.getConnection();
+            if (conn == null) return;
+
+            conn.setAutoCommit(false);   // 🔥 Start transaction
+
+            // 1️⃣ Update account balance
             PreparedStatement ps1 = conn.prepareStatement(updateBalanceSQL);
             ps1.setDouble(1, amount);
             ps1.setInt(2, accountNo);
             ps1.executeUpdate();
 
-            // 2. Insert transaction record
+            // 2️⃣ Insert transaction record
             PreparedStatement ps2 = conn.prepareStatement(insertTransactionSQL);
-            ps2.setInt(1, 10001); // transaction id
+            ps2.setInt(1, (int)(Math.random() * 100000));
             ps2.setDouble(2, amount);
             ps2.setString(3, type);
             ps2.setObject(4, LocalDateTime.now());
@@ -45,13 +43,29 @@ public class TransactionOperation {
             ps2.setInt(6, accountNo);
             ps2.executeUpdate();
 
+            conn.commit();   // ✅ Success
+
             System.out.println("✅ Transaction completed successfully!");
 
-            ps1.close();
-            ps2.close();
+        } catch (Exception e) {
 
-        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();   // 🔥 Rollback on failure
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
             e.printStackTrace();
+
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
