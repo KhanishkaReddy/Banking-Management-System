@@ -1,0 +1,106 @@
+🔹 1️⃣ MYSQL SERVER COMMANDS
+▶ Start MySQL Server
+sudo /usr/local/mysql/support-files/mysql.server start
+
+⏹ Stop MySQL Server
+sudo /usr/local/mysql/support-files/mysql.server stop
+
+🔁 Restart MySQL Server
+sudo /usr/local/mysql/support-files/mysql.server restart
+
+❌ Force stop MySQL (if server hangs)
+sudo pkill mysqld
+
+🔍 Check MySQL is running
+ps aux | grep mysqld
+
+🔹 2️⃣ LOGIN / LOGOUT COMMANDS
+Login as root
+mysql -u root -p
+
+Login as application user
+mysql -u bank_user -p
+
+Exit MySQL
+exit;
+
+🔹 3️⃣ DATABASE COMMANDS
+Show databases
+SHOW DATABASES;
+
+Use database
+USE banking_management;
+
+Show tables
+SHOW TABLES;
+
+Describe table structure
+DESC customer;
+
+View table data
+SELECT * FROM customer;
+
+🔹 4️⃣ USER & PRIVILEGE COMMANDS
+Create user
+CREATE USER 'bank_user'@'localhost' IDENTIFIED BY 'bank@123';
+
+Grant permissions
+GRANT ALL PRIVILEGES ON banking_management.* TO 'bank_user'@'localhost';
+
+Apply privilege changes
+FLUSH PRIVILEGES;
+
+Check users
+SELECT user, host FROM mysql.user;
+
+Delete user (if needed)
+DROP USER 'bank_user'@'localhost';
+
+🔹 5️⃣ DATABASE RESET COMMANDS
+Drop database
+DROP DATABASE banking_management;
+
+Create database
+CREATE DATABASE banking_management;
+
+🔹 6️⃣ JAVA + JDBC COMMANDS
+Compile DB connection
+javac -cp lib/mysql-connector-j-9.6.0.jar src/DBConnection.java
+
+Run DB connection
+java -cp lib/mysql-connector-j-9.6.0.jar:src DBConnection
+
+Compile all project files
+javac -cp lib/mysql-connector-j-9.6.0.jar src/InsertCustomer.java
+javac -cp lib/mysql-connector-j-9.6.0.jar src/OpenAccount.java
+javac -cp lib/mysql-connector-j-9.6.0.jar src/TransactionOperation.java
+javac -cp lib/mysql-connector-j-9.6.0.jar src/ViewCustomerAccount.java
+javac -cp lib/mysql-connector-j-9.6.0.jar src/BankingApp.java
+
+Run Java programs
+java -cp lib/mysql-connector-j-9.6.0.jar:src InsertCustomer
+java -cp lib/mysql-connector-j-9.6.0.jar:src OpenAccount
+java -cp lib/mysql-connector-j-9.6.0.jar:src TransactionOperation
+java -cp lib/mysql-connector-j-9.6.0.jar:src ViewCustomerAccount
+java -cp lib/mysql-connector-j-9.6.0.jar:src BankingApp
+
+🔹 7️⃣ SAFE MODE COMMANDS (RECOVERY – RARE CASE)
+Start MySQL in safe mode
+sudo mysqld_safe --skip-grant-tables --skip-networking
+
+Stop safe mode
+sudo pkill mysqld
+
+🔹 8️⃣ BASIC TERMINAL COMMANDS USED
+List files
+ls
+
+List files in src folder
+ls src
+
+Rename file (remove space error)
+mv "src/ InsertCustomer.java" src/InsertCustomer.java
+
+
+javac -cp lib/mysql-connector-j-9.6.0.jar src/*.java
+java -cp lib/mysql-connector-j-9.6.0.jar:src BankingApp
